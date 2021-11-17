@@ -172,7 +172,7 @@ for i in range(n):
     graph.append(list(map(int, input())))
 
 # DFS는 재귀적으로 구현해야 함
-def bfs(x, y):
+def dfs(x, y):
     # 주어진 범위를 벗어나느 경우에는 즉시 종료
     if x <= -1 or x >= n or y <= -1 or y >= m: 
         return False
@@ -181,10 +181,10 @@ def bfs(x, y):
         # 해당 노드 방문 처리
         graph[x][y] = 1
         # 상,하,좌,우의 위치도 모두 재귀적으로 호출
-        bfs(x-1,y)
-        bfs(x+1,y)
-        bfs(x,y-1)
-        bfs(x,y+1)
+        dfs(x-1,y)
+        dfs(x+1,y)
+        dfs(x,y-1)
+        dfs(x,y+1)
         return True
     return False
 
@@ -198,4 +198,60 @@ for i in range(n):
 print(result)
 ```
 <br>
+<br>
 
+## 미로 탈출 (p152)
+
+### 접근법
+```python
+책에서 강조한 것은 세 가지인 것 같다.
+1. 상하좌우로 움직이는 경우 dx, dy 정의하기
+ex) dx = [0, 0, -1, 1], dy = [1, -1, 0, 0]
+2. 기본적인 bfs 틀에서 조건에 따라 if문으로 나누기
+ - 미로 찾기 공간 벗어난 경우/ 괴물 있는 경우/ 처음방문하는 경우 (-> 특정 노드를 방문하면 그 이전 노드의 거리에 1을 더한 값을 리스트에 넣는다.)
+3. 이 문제는 단순히 오른쪽 아래로만 가면 되기 때문에 아래의 코드가 가능하다.
+```
+
+<br>
+
+```python
+from collections import deque
+
+n, m = map(int, input().split())
+
+graph = []
+for i in range(n):
+    graph.append(list(map(int, input())))
+
+# 이동할 네 방향 정의(상,하,좌,우)
+dx = [0, 0, -1, 1]
+dy = [1, -1, 0, 0]
+
+# BFS 구현
+def bfs(x, y):
+    # 큐 구현을 위해 deque 라이브러리 사용
+    queue = deque()
+    queue.append((x,y))
+    # 큐가 빌 때까지 반복
+    while queue:
+        x, y = queue.popleft()
+        # 현재 위치에서 네 방향으로의 위치 확인
+        for i in range(4):
+            nx = x + dx[i]
+            ny = y + dy[i]
+            # 미로 찾기 공간을 벗어난 경우 무시
+            if nx < 0 or nx >= n or ny < 0 or ny >= m:
+                continue
+            # 벽인 경우 무시 (continue는 아래코드 건너뜀)
+            if graph[nx][ny] == 0:
+                continue
+            # 해당 노드를 처음 방문하는 경우에만 최단 거리 기록
+            if graph[nx][ny] == 1:
+                graph[nx][ny] = graph[x][y] + 1
+                queue.append((nx, ny))
+    # 가장 오른쪽 아래까지의 최단 거리 반환
+    return graph[n-1][m-1]
+        
+# BFS를 수행한 결과 출력
+print(bfs(0, 0))
+```
