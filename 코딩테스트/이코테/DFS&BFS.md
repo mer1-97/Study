@@ -4,7 +4,7 @@ https://github.com/mer1-97/Study/blob/main/%EC%BD%94%EB%94%A9%ED%85%8C%EC%8A%A4%
 위 링크에서 스택, 큐, 재귀함수, 인접 행렬, 인접 리스트 공부 필요
 <br>
 
-### DFS(Depth-First Search) -> 스택 자료구조이며 재귀 함수 이용하여 구현
+### DFS(Depth-First Search) -> 스택 자료구조이며 재귀 함수 이용하여 구현 (인접 행렬도 쓸줄 알아야 함)
 ![image](https://user-images.githubusercontent.com/76419721/141737782-a6da4316-0adf-495d-a9b4-adcfb3d30369.png)
 <br>
 깊이 우선 탐색이라고 부르며, 그래프에서 깊은 부분을 우선적으로 탐색하는 알고리즘
@@ -254,4 +254,83 @@ def bfs(x, y):
         
 # BFS를 수행한 결과 출력
 print(bfs(0, 0))
+```
+<br>
+
+
+
+## DFS와 BFS (백준 1260번)
+https://www.acmicpc.net/problem/1260
+
+### 접근법
+```python
+1. 보통 DFS와 BFS를 구현하기 위해서는 트리나 그래프 구조를 가지고 있어야 서로 연결된 노드들을 파악할 수 있다.
+2. 그러나, 해당 문제는 노드를 만들고 연결해서 문제를 풀기에는 무리가 있어서 '인접행렬' 방식을 이용했다.
+3. 인접행렬 : 각 노드가 연결되어 있다면 1로 표시한다. 특정 노드들이 연결되어 있는지 확인할 때는 인접 행렬이 빠르다.
+              또한, 그래프처럼 방향이 없는 간선일 때는 대각선을 기준으로 양쪽이 대칭을 이룬다.
+4. N개의 숫자가 있으므로 N+1 X N+1의 행렬을 리스트를 통해서 만들고 0으로 채워준다. 인덱스와 값을 일치시키기 위해서 N+1개의 숫자를 사용한다.
+5. 이전에 풀었던 문제와 달리 인접 행렬을 이용했으므로 연결되어있는 경우(graph[v][i] == 1)를 조건에 추가한다.
+```
+<br>
+
+![image](https://user-images.githubusercontent.com/76419721/142860678-78e2023b-8893-4986-9389-8fb1255c5d3d.png)
+
+<br>
+
+```python
+from collections import deque
+
+n, m, v = map(int, input().split())
+
+# 정점이 N개 있으므로 인접행렬을 만들기 위해 N+1 X N+1 리스트 만들기
+graph = [[0] * (n+1) for _ in range(n+1)]
+# 방문한 곳 체크를 위한 배열 선언
+visited = [False] * (n+1)
+
+# 인접 행렬(adjacency list) 만들기
+# n=2, m=2이고 1 2, 2 1 입력할 경우 print(graph) 값은 아래와 같음
+# [[0,0,0], [0,0,1], [0,1,0]]
+# 0 0 0
+# 0 0 1 [1][2]에 해당
+# 0 1 0 [2][1]에 해당
+for _ in range(m):
+    a, b = map(int, input().split())
+    # 노드 연결하기
+    graph[a][b] = graph[b][a] = 1
+
+# 깊이 우선 탐색
+def dfs(v):
+    # 방문한 곳을 표시
+    visited[v] = True
+    print(v, end=' ')
+    # DFS이므로 재귀 이용
+    for i in range(1,n+1):
+        # 방문하지 않고 연결되어 있는 경우
+        if not visited[i] and graph[v][i] == 1:
+            dfs(i)
+
+# 너비 우선 탐색
+def bfs(start):
+    # 방문한 곳을 표시
+    visited[start] = True
+    # 큐 구현을 위해 deque 사용, deque는 int로 정의 못함 즉, list [] 사용해야 함
+    qeueu = deque([start])
+    # BFS이므로 큐 이용
+    while qeueu:
+        # 큐에서 하나의 원소를 뽑아 출력
+        v = qeueu.popleft()
+        print(v, end=' ')
+        # 해당 원소와 연결된, 아직 방문하지 않은 원소들을 큐에 삽입
+        for i in range(1,n+1):
+            # 방문하지 않은 경우
+            if not visited[i] and graph[v][i] == 1:
+                qeueu.append(i)
+                visited[i] = True
+    
+dfs(v)
+print()
+# 방문한 곳 체크를 위한 배열 재초기화
+visited = [False] * (n+1)
+bfs(v)
+
 ```
